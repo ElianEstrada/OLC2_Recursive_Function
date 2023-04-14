@@ -64,6 +64,8 @@ public class Primitive extends Instruction {
 
                generator3D.setHeap("H", "-1");
                generator3D.nextHeap();
+
+               return new Value(this.type, temp, true);
         }
 
         return null;

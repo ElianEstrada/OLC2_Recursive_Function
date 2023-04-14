@@ -2,6 +2,7 @@ import Abstract.Instruction;
 import Environment.Error;
 import Environment.SymbolTable;
 import Environment.Tree;
+import Generator.Generator3D;
 import Instructions.Function;
 import Instructions.Program;
 import grammar.GrammarLexer;
@@ -88,14 +89,17 @@ public class Main {
 
         System.out.println("/*------------OUT INTERPRET------------*/\n" + tree.getConsole().toString());
 
-        /*if (tree.getErrors().size() != 0) {
+        if (tree.getErrors().size() != 0) {
             System.out.println("no se puede compilar porque hay errores");
             return;
         }
 
         for (Instruction item: tree.getInstructions()) {
             item.compile(globalTable);
-        }*/
+        }
+
+        Generator3D generator3D = Generator3D.getInstance();
+        System.out.println("/*------------OUT COMPILER------------*/\n" + generator3D.getCode());
 
     }
 }

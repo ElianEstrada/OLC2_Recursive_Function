@@ -51,6 +51,10 @@ public class Program extends Instruction {
 
     @Override
     public Object compile(SymbolTable table) {
+        for (Object item: this.listInstructions) {
+            ((Instruction) item).compile(table);
+        }
+
         return null;
     }
 

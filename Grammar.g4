@@ -50,7 +50,7 @@ type : RINT
 if : RIF '(' expression ')' '{' listInstructions '}' ifOptions?
    ;
 
-ifOptions : RELSE (if | listInstructions)
+ifOptions : RELSE (if | '{' listInstructions '}' )
           ;
 
 print : RPRINT '(' expression ')'

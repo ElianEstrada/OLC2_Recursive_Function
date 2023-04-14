@@ -1,8 +1,10 @@
 package Instructions;
 
 import Abstract.Instruction;
+import Abstract.Value;
 import Environment.*;
 import Environment.Error;
+import Generator.Generator3D;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -71,6 +73,58 @@ public class If extends Instruction {
 
     @Override
     public Object compile(SymbolTable table) {
+        table = this.tableCompile;
+        Generator3D generator3D = Generator3D.getInstance();
+
+        ((Instruction) this.expression).setFalseLabel(generator3D.newLabel());
+        Value value = (Value) ((Instruction) this.expression).compile(table);
+        String label = generator3D.newLabel();
+        generator3D.printLabel(((Instruction) this.expression).getTrueLabel());
+
+        SymbolTable newTable = new SymbolTable(table);
+        for (Object item: this.ifInstructions) {
+            ((Instruction) item).interpret(newTable);
+
+            if (item instanceof Return) {
+                ((Instruction) item).setTrueLabel(trueLabel);
+            }
+
+            if (item instanceof If) {
+                ((Instruction) item).setTrueLabel(trueLabel);
+                ((Instruction) item).setFalseLabel(falseLabel);
+            }
+
+            ((Instruction) item).compile(newTable);
+        }
+
+        generator3D.addGoto(label);
+        generator3D.printLabel(((Instruction) this.expression).getFalseLabel());
+
+        if (this.elseIf != null) {
+            elseIf.compile(newTable);
+        }
+
+        if (this.elseInstructions != null) {
+            newTable = new SymbolTable(table);
+
+            for (Object item: this.elseInstructions) {
+                ((Instruction) item).interpret(newTable);
+
+                if (item instanceof Return) {
+                    ((Instruction) item).setTrueLabel(trueLabel);
+                }
+
+                if (item instanceof If) {
+                    ((Instruction) item).setTrueLabel(trueLabel);
+                    ((Instruction) item).setFalseLabel(falseLabel);
+                }
+
+                ((Instruction) item).compile(newTable);
+            }
+        }
+
+        generator3D.printLabel(label);
+
         return null;
     }
 

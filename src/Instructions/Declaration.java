@@ -1,8 +1,10 @@
 package Instructions;
 
 import Abstract.Instruction;
+import Abstract.Value;
 import Environment.*;
 import Environment.Error;
+import Generator.Generator3D;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -131,6 +133,82 @@ public class Declaration extends Instruction {
 
     @Override
     public Object compile(SymbolTable table) {
+        table = this.tableCompile;
+        Generator3D generator3D = Generator3D.getInstance();
+
+        Symbol symbol;
+        Value value;
+        String temp;
+        Stack<String> identifiers = new Stack<>();
+        boolean flag = true;
+
+        if (this.listDeclaration.size() == 0) {
+            temp = generator3D.newTemporal();
+            symbol = table.getSymbol(this.id);
+
+            generator3D.addExp(temp, "P", "+", String.valueOf(symbol.getPosition()));
+            this.type.getDefaultValue().type = symbol.getType();
+            value = (Value) this.type.getDefaultValue().compile(table);
+
+            generator3D.setStack(temp, value.getValue().toString());
+        }
+
+        for (Object item: this.listDeclaration) {
+            temp = generator3D.newTemporal();
+
+            if (item instanceof String) {
+                if (identifiers.empty()) {
+                    identifiers.push(item.toString());
+
+                    if (flag) {
+                        symbol = table.getSymbol(this.id);
+                        generator3D.addExp(temp, "P", "+", String.valueOf(symbol.getPosition()));
+                        this.type.getDefaultValue().type = symbol.getType();
+                        flag = false;
+                    } else {
+                        generator3D.deleteTemporal();
+                        continue;
+                    }
+                } else {
+                    symbol = table.getSymbol(identifiers.pop());
+                    identifiers.push(item.toString());
+                    generator3D.addExp(temp, "P", "+", String.valueOf(symbol.getPosition()));
+                    this.type.getDefaultValue().type = symbol.getType();
+                }
+
+                value = (Value) this.type.getDefaultValue().compile(table);
+
+                generator3D.setStack(temp, value.getValue().toString());
+
+                this.type.getDefaultValue().setFalseLabel(null);
+                this.type.getDefaultValue().setTrueLabel(null);
+            } else {
+                if (identifiers.empty()) {
+                    symbol = table.getSymbol(this.id);
+                    generator3D.addExp(temp, "P", "+", String.valueOf(symbol.getPosition()));
+                    flag = false;
+                } else {
+                    symbol = table.getSymbol(identifiers.pop());
+                    generator3D.addExp(temp, "P", "+", String.valueOf(symbol.getPosition()));
+                }
+
+                value = (Value) ((Instruction) item).compile(table);
+
+                generator3D.setStack(temp, value.getValue().toString());
+            }
+        }
+
+        if (!identifiers.empty()) {
+            temp = generator3D.newTemporal();
+            symbol = table.getSymbol(identifiers.pop());
+            generator3D.addExp(temp, "P", "+", String.valueOf(symbol.getPosition()));
+            this.type.getDefaultValue().type = symbol.getType();
+
+            value = (Value) this.type.getDefaultValue().compile(table);
+
+            generator3D.setStack(temp, value.getValue().toString());
+        }
+
         return null;
     }
 

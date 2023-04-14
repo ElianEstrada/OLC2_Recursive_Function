@@ -1,11 +1,13 @@
 package Expression;
 
 import Abstract.Instruction;
+import Abstract.Value;
 import Environment.Error;
 import Environment.RelationalOp;
 import Environment.ReturnType;
 import Environment.SymbolTable;
 import Environment.Type;
+import Generator.Generator3D;
 
 import java.text.MessageFormat;
 
@@ -84,7 +86,53 @@ public class Relational extends Instruction {
 
     @Override
     public Object compile(SymbolTable table) {
-        return null;
+        Generator3D generator3D = Generator3D.getInstance();
+
+        Value vLeft = (Value) ((Instruction) this.left).compile(table);
+        Value vRight;
+
+        if (trueLabel == null) {
+            trueLabel = generator3D.newLabel();
+        }
+
+        if (falseLabel == null) {
+            falseLabel = generator3D.newLabel();
+        }
+
+        if (vLeft.getType() == Type.LOGICAL) {
+            String label = generator3D.newLabel();
+            String temp = generator3D.newTemporal();
+
+            generator3D.printLabel(((Instruction) this.left).getTrueLabel());
+            generator3D.addExp(temp, "1", "", "");
+            generator3D.addGoto(label);
+            generator3D.printLabel(((Instruction) this.left).getFalseLabel());
+            generator3D.addExp(temp, "0", "", "");
+            generator3D.printLabel(label);
+
+            vRight = (Value) ((Instruction) this.right).compile(table);
+            String labelR = generator3D.newLabel();
+            String tempR = generator3D.newTemporal();
+
+            generator3D.printLabel(((Instruction) this.right).getTrueLabel());
+            generator3D.addExp(tempR, "1", "", "");
+            generator3D.addGoto(labelR);
+            generator3D.printLabel(((Instruction) this.right).getFalseLabel());
+            generator3D.addExp(tempR, "0", "", "");
+            generator3D.printLabel(labelR);
+
+            generator3D.addIf(temp, this.op.getDefaultValue(), tempR, trueLabel);
+            generator3D.addGoto(falseLabel);
+
+            return new Value(Type.LOGICAL, "", false);
+        } else {
+            vRight = (Value) ((Instruction) this.right).compile(table);
+        }
+
+        generator3D.addIf(vLeft.getValue().toString(), this.op.getDefaultValue(), vRight.getValue().toString(), trueLabel);
+        generator3D.addGoto(falseLabel);
+
+        return new Value(Type.LOGICAL, "", false);
     }
 
     public Object getLeft() {

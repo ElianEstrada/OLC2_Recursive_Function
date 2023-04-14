@@ -144,12 +144,12 @@ public class Generator3D {
         }
 
         return "/*---------------HEADER---------------*/\n" +
-                "#include <stdio.h>" +
+                "#include <stdio.h>\n" +
                 "float STACK[30101999];\n" +
                 "float HEAP[30101999];\n" +
                 "float P;\n" +
                 "float H;\n" +
-                (temporal != 0 ? "float " + temporal : "\n");
+                (temporal != 0 ? "float " + temporals : "\n");
 
     }
 

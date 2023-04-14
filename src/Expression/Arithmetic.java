@@ -1,10 +1,12 @@
 package Expression;
 
 import Abstract.Instruction;
+import Abstract.Value;
 import Environment.Error;
 import Environment.ReturnType;
 import Environment.SymbolTable;
 import Environment.Type;
+import Generator.Generator3D;
 
 import java.text.MessageFormat;
 
@@ -116,7 +118,27 @@ public class Arithmetic extends Instruction {
 
     @Override
     public Object compile(SymbolTable table) {
-        return null;
+        Generator3D generator3D = Generator3D.getInstance();
+
+        if (this.left != null) {
+            Value vLeft = (Value) ((Instruction) this.left).compile(table);
+            Value vRight = (Value) ((Instruction) this.right).compile(table);
+
+            String temp = generator3D.newTemporal();
+            this.type = this.domain[vLeft.getType().ordinal()][vRight.getType().ordinal()];
+
+            generator3D.addExp(temp, vLeft.getValue().toString(), this.op, vRight.getValue().toString());
+
+            return new Value(this.type, temp, true);
+
+        } else {
+            Value value = (Value) ((Instruction) this.right).compile(table);
+            String temp = generator3D.newTemporal();
+
+            generator3D.addExp(temp, "0", "-", value.getValue().toString());
+
+            return new Value(value.getType(), temp, true);
+        }
     }
 
     public Object getLeft() {
