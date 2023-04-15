@@ -60,11 +60,11 @@ public class Generator3D {
         }
 
         existStr = true;
-        this.isFunction = true;
+        //this.isFunction = true;
 
         newFunc("printStr");
-        String salida = newLabel();
-        String comprobar = newLabel();
+        String out = newLabel();
+        String check = newLabel();
 
         String tmpP = newTemporal();
         String tmpH = newTemporal();
@@ -73,23 +73,25 @@ public class Generator3D {
         getStack(tmpH, tmpP);
 
         String tmp = newTemporal();
-        printLabel(comprobar);
+        printLabel(check);
         getHeap(tmp, tmpH);
-        addIf(tmp, "==", "-1", salida);
+        addIf(tmp, "==", "-1", out);
         addPrint("c", "int", tmp);
         addExp(tmpH, tmpH, "+", "1");
-        addGoto(comprobar);
-        printLabel(salida);
+        addGoto(check);
+        printLabel(out);
         endFun();
-        this.isFunction = false;
+        //this.isFunction = false;
     }
 
     public void newFunc(String name) {
+        this.isFunction = true;
         functions.append("void ").append(name).append("() {\n");
     }
 
     public void endFun() {
         functions.append("return;\n}\n");
+        this.isFunction = false;
     }
 
     public void addExp(String result, String left, String op, String right) {

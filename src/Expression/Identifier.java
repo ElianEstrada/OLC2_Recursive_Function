@@ -45,7 +45,6 @@ public class Identifier extends Instruction {
 
     @Override
     public Object compile(SymbolTable table) {
-        table = this.tableCompile;
         Generator3D generator3D = Generator3D.getInstance();
 
         Symbol symbol = table.getSymbol(this.id);

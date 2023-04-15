@@ -1,8 +1,10 @@
 package Instructions;
 
 import Abstract.Instruction;
+import Abstract.Value;
 import Environment.*;
 import Environment.Error;
+import Generator.Generator3D;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ public class CallFunction extends Instruction {
 
     @Override
     public Object interpret(SymbolTable table) {
+        this.tableCompile = table;
 
         Tree tree = Tree.getInstance();
         Function function = (Function) tree.getFunctions(this.name);
@@ -86,6 +89,36 @@ public class CallFunction extends Instruction {
 
     @Override
     public Object compile(SymbolTable table) {
+        Generator3D generator3D = Generator3D.getInstance();
+        Tree tree = Tree.getInstance();
+
+        Function function = (Function) tree.getFunctions(this.name);
+
+        if (function != null) {
+            String position;
+            String value = generator3D.newTemporal();
+            Value result;
+
+            int count = 0;
+            for (Object item: this.parameters) {
+
+                result = (Value) ((Instruction) item).compile(table);
+
+                position = generator3D.newTemporal();
+                generator3D.addExp(position, "P", "+", String.valueOf(table.getSize() + count));
+                generator3D.setStack(position, result.getValue().toString());
+
+                count++;
+            }
+
+            generator3D.newEnvironment(String.valueOf(table.getSize()));
+            generator3D.getFunc(this.name);
+            generator3D.getStack(value, "P");
+            generator3D.getEnvironment(String.valueOf(table.getSize()));
+
+            return new Value(this.result.getType(), value, true);
+        }
+
         return null;
     }
 

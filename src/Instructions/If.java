@@ -73,7 +73,7 @@ public class If extends Instruction {
 
     @Override
     public Object compile(SymbolTable table) {
-        table = this.tableCompile;
+        //table = this.tableCompile;
         Generator3D generator3D = Generator3D.getInstance();
 
         ((Instruction) this.expression).setFalseLabel(generator3D.newLabel());
@@ -81,49 +81,53 @@ public class If extends Instruction {
         String label = generator3D.newLabel();
         generator3D.printLabel(((Instruction) this.expression).getTrueLabel());
 
-        SymbolTable newTable = new SymbolTable(table);
+        //SymbolTable newTable = new SymbolTable(table);
         for (Object item: this.ifInstructions) {
-            ((Instruction) item).interpret(newTable);
-
-            if (item instanceof Return) {
-                ((Instruction) item).setTrueLabel(trueLabel);
-            }
+            //((Instruction) item).interpret(table);
 
             if (item instanceof If) {
                 ((Instruction) item).setTrueLabel(trueLabel);
                 ((Instruction) item).setFalseLabel(falseLabel);
             }
 
-            ((Instruction) item).compile(newTable);
-        }
+            ((Instruction) item).compile(table);
 
-        generator3D.addGoto(label);
-        generator3D.printLabel(((Instruction) this.expression).getFalseLabel());
+            if (item instanceof Return) {
+                generator3D.addGoto(table.getExitLabel());
+            }
+
+            if (this.elseInstructions != null) {
+                generator3D.addGoto(label);
+            }
+        }
 
         if (this.elseIf != null) {
-            elseIf.compile(newTable);
+            elseIf.compile(table);
         }
 
+        generator3D.printLabel(((Instruction) this.expression).getFalseLabel());
+
         if (this.elseInstructions != null) {
-            newTable = new SymbolTable(table);
+
+            //newTable = new SymbolTable(table);
 
             for (Object item: this.elseInstructions) {
-                ((Instruction) item).interpret(newTable);
+                //((Instruction) item).interpret(newTable);
 
-                if (item instanceof Return) {
+                /*if (item instanceof Return) {
                     ((Instruction) item).setTrueLabel(trueLabel);
-                }
+                }*/
 
                 if (item instanceof If) {
                     ((Instruction) item).setTrueLabel(trueLabel);
                     ((Instruction) item).setFalseLabel(falseLabel);
                 }
 
-                ((Instruction) item).compile(newTable);
+                ((Instruction) item).compile(table);
             }
-        }
 
-        generator3D.printLabel(label);
+            generator3D.printLabel(label);
+        }
 
         return null;
     }

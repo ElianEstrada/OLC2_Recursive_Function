@@ -1,12 +1,11 @@
-void main() {
-    print("hola")
-    print("Adios")
-    print(2+2)
-    print(2<=2)
-
-    if (5 < 3) {
-        print("entro")
-    } else {
-        print("no entro")
+int fact(num) {
+    if (num == 1){
+        return 1
     }
+
+    return num * fact(num - 1)
+}
+
+void main() {
+    print(fact(5))
 }

@@ -30,6 +30,7 @@ public class Primitive extends Instruction {
 
     @Override
     public Object compile(SymbolTable table) {
+        //table = this.tableCompile;
         Generator3D generator3D = Generator3D.getInstance();
 
         if (this.type == Type.INTEGER) {

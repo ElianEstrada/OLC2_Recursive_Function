@@ -44,8 +44,6 @@ public class Print extends Instruction {
 
     @Override
     public Object compile(SymbolTable table) {
-        table = this.tableCompile;
-
         Generator3D generator3D = Generator3D.getInstance();
         Value value = (Value) ((Instruction) this.expression).compile(table);
 

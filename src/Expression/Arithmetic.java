@@ -7,6 +7,7 @@ import Environment.ReturnType;
 import Environment.SymbolTable;
 import Environment.Type;
 import Generator.Generator3D;
+import Instructions.CallFunction;
 
 import java.text.MessageFormat;
 
@@ -121,8 +122,26 @@ public class Arithmetic extends Instruction {
         Generator3D generator3D = Generator3D.getInstance();
 
         if (this.left != null) {
-            Value vLeft = (Value) ((Instruction) this.left).compile(table);
-            Value vRight = (Value) ((Instruction) this.right).compile(table);
+
+            Value vLeft;
+            Value vRight;
+
+            vLeft = (Value) ((Instruction) this.left).compile(table);
+
+            if (this.right instanceof CallFunction) {
+                String position = generator3D.newTemporal();
+                generator3D.addExp(position, "P", "+", String.valueOf(table.getSize()));
+                generator3D.setStack(position, vLeft.getValue().toString());
+                table.setSize(table.getSize() + 1);
+                vRight = (Value) ((Instruction) this.right).compile(table);
+                table.setSize(table.getSize() - 1);
+                position = generator3D.newTemporal();
+                generator3D.addExp(position, "P", "+", String.valueOf(table.getSize()));
+                generator3D.getStack(vLeft.getValue().toString(), position);
+            } else {
+                vRight = (Value) ((Instruction) this.right).compile(table);
+            }
+
 
             String temp = generator3D.newTemporal();
             this.type = this.domain[vLeft.getType().ordinal()][vRight.getType().ordinal()];
