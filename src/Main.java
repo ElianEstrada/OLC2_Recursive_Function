@@ -87,7 +87,7 @@ public class Main {
             }
         }
 
-        System.out.println("/*------------OUT INTERPRET------------*/\n" + tree.getConsole().toString());
+        //System.out.println("/*------------OUT INTERPRET------------*/\n" + tree.getConsole().toString());
 
         if (tree.getErrors().size() != 0) {
             System.out.println("no se puede compilar porque hay errores");

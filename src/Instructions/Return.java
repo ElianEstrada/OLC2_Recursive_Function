@@ -25,7 +25,7 @@ public class Return extends Instruction {
 
     @Override
     public Object interpret(SymbolTable table) {
-
+        this.tableCompile = table;
         ReturnType value = (ReturnType) ((Instruction) this.expression).interpret(table);
 
         if (value.getType() == null) {
@@ -41,7 +41,7 @@ public class Return extends Instruction {
 
     @Override
     public Object compile(SymbolTable table) {
-        table = this.tableCompile;
+        //table = this.tableCompile;
 
         Generator3D generator3D = Generator3D.getInstance();
         Value value = (Value) ((Instruction) this.expression).compile(table);
@@ -60,7 +60,8 @@ public class Return extends Instruction {
             generator3D.setStack("P", value.getValue().toString());
         }
 
-        generator3D.addGoto(table.getExitLabel());
+        //generator3D.addGoto(table.getExitLabel());
+        //generator3D.printLabel(table.getExitLabel());
 
         return null;
     }
